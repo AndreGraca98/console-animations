@@ -43,11 +43,11 @@ class SimpleAnimation:
             tt = self.internal_timer * len(self.display_chars) * self.max_iterations
             _logger.debug(f"Animation cycle total waiting time: {tt} seconds")
 
-    def run(self) -> None:
+    def run(self, pre_text: str = "", post_text: str = "") -> None:
         """Run the animation until it finishes"""
         # TODO: add try/except for ctrl+C (KeyboardInterrupt) to exit animation (?)
         while not self.finished:
-            self.display()
+            self.display(pre_text=pre_text, post_text=post_text)
         self.reset()
 
     def reset(self) -> None:
@@ -55,12 +55,14 @@ class SimpleAnimation:
         self._element: int = -1
         self._current_iteration: int = 0
 
-    def display(self) -> None:
+    def display(self, pre_text: str = "", post_text: str = "") -> None:
         """Display the next character in the animation. If internal_timer is set,
         wait for that time before displaying the next character"""
         if self.internal_timer is not None:
             time.sleep(self.internal_timer)
-        print(f"{next(self): <80}", end="\r")
+        print("\033[?25l", end="")  # Hide cursor
+        print(f"{pre_text}{next(self)}{post_text}", end="\r")
+        print("\033[?25h", end="")  # Show cursor
 
     @property
     def finished(self) -> bool:
