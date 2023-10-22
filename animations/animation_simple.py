@@ -75,7 +75,7 @@ class SimpleAnimation:
         if self.wait_time is not None:
             time.sleep(self.wait_time)
         print("\033[?25l", end="")  # Hide cursor
-        print(f"{pre_text}{next(self)}{post_text}", end="\r")
+        print(f"{pre_text}{next(self)}{post_text}".ljust(120), end="\r")
         print("\033[?25h", end="")  # Show cursor
 
     def reset(self) -> None:
