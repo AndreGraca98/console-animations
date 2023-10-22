@@ -2,7 +2,15 @@
 
 A collection of Python classes to create waiting animations on the console.
 
-## Simple Animation
+## Install
+
+```bash
+pip install git+https://github.com/AndreGraca98/console-animations.git
+```
+
+## Animations
+
+### Simple Animation
 
 The `SimpleAnimation` class creates a loop of characters that are displayed on the console. The animation is customizable by changing the number of iterations, the characters to display, and the time to wait between each iteration.
 
