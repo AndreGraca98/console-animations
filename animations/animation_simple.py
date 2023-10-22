@@ -18,51 +18,41 @@ class SimpleAnimation:
     def __init__(
         self,
         max_iterations: int | None = None,
-        display_chars: list[str] | None = None,
-        internal_timer: float | None = None,
-        raise_stop_iteration: bool = False,
+        chars: list[str] | None = None,
+        wait_time: float | None = None,
     ):
         """max_iterations: max number of iterations to display.
         Defaults to -1 (infinite)
-        display_chars: list of characters to display in a loop. Defaults to clock emojis
-        internal_timer: time to wait between each iteration. Defaults to None (no wait)
-        raise_stop_iteration: if True, raise StopIteration when the animation finishes.
-        Defaults to False
+        chars: list of characters to display in a loop. Defaults to clock emojis
+        wait_time: time to wait between each iteration. Defaults to None (no wait)
         """
         self.reset()
 
-        self._validate(
-            max_iterations, display_chars, internal_timer, raise_stop_iteration
-        )
+        self._validate(max_iterations=max_iterations, chars=chars, wait_time=wait_time)
         self.max_iterations: int = max_iterations or self.DEFAULT_MAX_ITERATIONS
-        self.display_chars: list[str] = display_chars or self.DEFAULT_DISPLAY_CHARS
-        self.internal_timer: float | None = internal_timer
-        self.raise_stop_iteration: bool = raise_stop_iteration
+        self.chars: list[str] = chars or self.DEFAULT_DISPLAY_CHARS
+        self.wait_time: float | None = wait_time
 
-        if self.internal_timer is not None:
-            tt = self.internal_timer * len(self.display_chars) * self.max_iterations
+        if self.wait_time is not None:
+            tt = self.wait_time * len(self.chars) * self.max_iterations
             _logger.debug(f"Animation cycle total waiting time: {tt} seconds")
 
-    def run(self, pre_text: str = "", post_text: str = "") -> None:
-        """Run the animation until it finishes"""
-        # TODO: add try/except for ctrl+C (KeyboardInterrupt) to exit animation (?)
-        while not self.finished:
-            self.display(pre_text=pre_text, post_text=post_text)
-        self.reset()
-
-    def reset(self) -> None:
-        """Reset the animation to the initial state"""
-        self._element: int = -1
-        self._current_iteration: int = 0
-
-    def display(self, pre_text: str = "", post_text: str = "") -> None:
-        """Display the next character in the animation. If internal_timer is set,
-        wait for that time before displaying the next character"""
-        if self.internal_timer is not None:
-            time.sleep(self.internal_timer)
-        print("\033[?25l", end="")  # Hide cursor
-        print(f"{pre_text}{next(self)}{post_text}", end="\r")
-        print("\033[?25h", end="")  # Show cursor
+    def _validate(
+        self,
+        max_iterations: int | None,
+        chars: list[str] | None,
+        wait_time: float | None,
+    ):
+        if max_iterations is not None:
+            assert isinstance(max_iterations, int)
+            assert max_iterations == -1 or max_iterations > 0
+        if chars is not None:
+            assert isinstance(chars, list)
+            assert all(isinstance(c, str) for c in chars)
+            assert len(chars) >= 1
+        if wait_time is not None:
+            assert isinstance(wait_time, (int, float))
+            assert wait_time > 0
 
     @property
     def finished(self) -> bool:
@@ -72,38 +62,43 @@ class SimpleAnimation:
             return False
         return self._current_iteration >= self.max_iterations
 
-    def _validate(
-        self,
-        max_iterations: int | None,
-        display_chars: list[str] | None,
-        internal_timer: float | None,
-        raise_stop_iteration: bool,
-    ):
-        if max_iterations is not None:
-            assert isinstance(max_iterations, int)
-            assert max_iterations == -1 or max_iterations > 0
-        if display_chars is not None:
-            assert isinstance(display_chars, list)
-            assert all(isinstance(c, str) for c in display_chars)
-            assert len(display_chars) >= 1
-        if internal_timer is not None:
-            assert isinstance(internal_timer, (int, float))
-            assert internal_timer > 0
-        assert isinstance(raise_stop_iteration, bool)
+    def run(self, pre_text: str = "", post_text: str = "") -> None:
+        """Run the animation until it finishes"""
+        # TODO: add try/except for ctrl+C (KeyboardInterrupt) to exit animation (?)
+        self.reset()
+        while not self.finished:
+            self.display(pre_text=pre_text, post_text=post_text)
+        self.reset()
 
-    def __next__(self) -> str:
+    def display(self, pre_text: str = "", post_text: str = "") -> None:
+        """Display the next character in the animation. If internal_timer is set,
+        wait for that time before displaying the next character"""
+        if self.wait_time is not None:
+            time.sleep(self.wait_time)
+        print("\033[?25l", end="")  # Hide cursor
+        print(f"{pre_text}{next(self)}{post_text}", end="\r")
+        print("\033[?25h", end="")  # Show cursor
+
+    def reset(self) -> None:
+        """Reset the animation to the initial state"""
+        self._element: int = 0
+        self._current_iteration: int = 0
+
+    # Use 'next()'
+    def __next__(self):
+        current_element = self._element
         self._element += 1
-        if self._element >= len(self.display_chars):
+        if self._element >= len(self.chars):
             # Reset to first element
             self._element = 0
             self._current_iteration += 1
-        if self.finished and self.raise_stop_iteration:
-            raise StopIteration
-        return self.display_chars[self._element]
+        return self.chars[current_element]
 
-    def __iter__(self) -> Self:
-        return self
+    # Use 'for' loops, iterable constructors...
+    def __iter__(self):
+        yield from self.chars
 
+    # Use 'with' statements
     def __enter__(self):
         return self
 
@@ -113,8 +108,8 @@ class SimpleAnimation:
     def __repr__(self):
         t = self.__class__.__name__
         t += f"(max_iterations={self.max_iterations}, "
-        t += f"display_chars={self.display_chars!r}, "
-        if self.internal_timer is not None:
-            t += f"internal_timer={self.internal_timer}, "
-        t += f"raise_on_finish={self.raise_stop_iteration})"
+        t += f"display_chars={self.chars!r}"
+        if self.wait_time is not None:
+            t += f", internal_timer={self.wait_time}"
+        t += ")"
         return t
