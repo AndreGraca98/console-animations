@@ -17,8 +17,7 @@ The `SimpleAnimation` class creates a loop of characters that are displayed on t
 Parameters:
 
 - `max_iterations`: max number of iterations to display. Defaults to 1 (-1 means infinite)
-- `display_chars`: list of characters to display in a loop. Defaults to clock emojis
-- `internal_timer`: time to wait between each iteration. Defaults to None (no wait)
-- `raise_stop_iteration`: if True, raise StopIteration when the animation finishes. Defaults to False
+- `chars`: list of characters to display in a loop. Defaults to clock emojis
+- `wait_time`: time to wait between each iteration. Defaults to None (no wait)
 
 For more information, see the [SimpleAnimation README](./animations/readme_animation_simple.md).

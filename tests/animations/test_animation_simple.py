@@ -1,7 +1,5 @@
 import time
 
-import pytest
-
 from animations.animation_simple import SimpleAnimation
 
 

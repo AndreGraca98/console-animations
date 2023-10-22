@@ -1,6 +1,5 @@
 import logging
 import time
-from typing import Self
 
 __all__ = ["SimpleAnimation"]
 
