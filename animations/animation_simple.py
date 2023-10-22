@@ -107,8 +107,7 @@ class SimpleAnimation:
     def __repr__(self):
         t = self.__class__.__name__
         t += f"(max_iterations={self.max_iterations}, "
-        t += f"display_chars={self.chars!r}"
+        t += f"chars={self.chars!r}"
         if self.wait_time is not None:
-            t += f", internal_timer={self.wait_time}"
-        t += ")"
-        return t
+            t += f", wait_time={self.wait_time}"
+        return t + ")"
