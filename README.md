@@ -1,5 +1,7 @@
 # Waiting Animations
 
+![badge](https://img.shields.io/github/v/tag/AndreGraca98/console-animations?logo=python&logoColor=yellow&label=version)
+
 A collection of Python classes to create waiting animations on the console.
 
 ## Install
